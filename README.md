@@ -1,5 +1,7 @@
 # Sensorimotor-arduino
 
+![Arduino Nano](doc/images/nano.jpg)
+
 Sensorimotor-arduino is the arduino-library to control the sensorimotor boards.
 
 ## Documentation
