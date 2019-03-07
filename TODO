@@ -1,0 +1,22 @@
+# TODO
+
+There are still some things to do, this document will give an overview about
+the areas that are actively worked on.
+
+* [ ] Code samples
+  - [ ] Position control with a single sensorimotor board
+  - [ ] Voltage control with a thermistor (for continous rotation)
+  - [ ] Torque control (keeping measured P=I*U values constant)
+  - [ ] Impulse control example
+* [x] PID controller
+* [ ] Documentation
+  - [ ] Download and installation of the arduino library
+  - [ ] Why use a bus?
+  - [ ] what is RS485
+  - [ ] Protocol definition
+* [ ] improve Hardware compatibility
+  - [x] Arduino Uno
+  - [x] Arduino Nano
+  - [ ] Arduino Mega
+* [ ] Bill of material for example projects
+
