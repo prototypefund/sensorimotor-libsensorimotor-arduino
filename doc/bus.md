@@ -24,11 +24,12 @@ Sensorimotor's cable layout is as follows (from left to right):
 
 Recommended for embedded chips: MAX485 or SN75176.
 The wiring for this setup is as follows:
-• B on the transceiver is connected to B on the Sensorimotor
-• A on the transceiver is connected to A on the Sensorimotor
-• Both the receiver and Sensorimotor share a common ground (this is most easily achieved by directly connecting their GND Pins)
-• RO on the Transceiver should go to the RX Pin on the Arduino
-• DI on the Transceiver should to go the TX Pin on the Arduino
-• DE and RE on the receiver should go to to a shared digital output capable Pin
+
+* B on the transceiver is connected to B on the Sensorimotor
+* A on the transceiver is connected to A on the Sensorimotor
+* Both the receiver and Sensorimotor share a common ground (this is most easily achieved by directly connecting their GND Pins)
+* RO on the Transceiver should go to the RX Pin on the Arduino
+* DI on the Transceiver should to go the TX Pin on the Arduino
+* DE **and** RE on the receiver should go to to a shared digital output capable Pin
 
 DE and RE control the sending and receiving mode, if DE and RE are High, the Transceiver will send all signals arriving on the DI Pin; if DE and RE are low, the transceiver will instead output received signals on RO.
