@@ -8,6 +8,14 @@ For the full documentation, see the [documentation folder](doc/README.md) and th
 
 ## Quick start:
 
+### Installation
+
+Clone this repository as a new folder called "SensoriMotor" under the folder named "libraries" in your Arduino sketchbook folder. Create the folder "libraries" in case it does not exist yet.
+
+### Usage
+
+To use the library in your own sketch, select it from Sketch > Import Library.
+
 You can initialize a new Motorcord class like this:
 
 ```cpp
@@ -34,4 +42,3 @@ now you can use the motors class to access all connected motors:
 ```cpp
 motors.get(id)
 ```
-
