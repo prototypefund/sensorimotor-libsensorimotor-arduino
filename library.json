@@ -1,0 +1,34 @@
+{
+    "name": "Sensorimotor",
+    "description": "Sensorimotor is a library for programming addressable smart servos with arduino.",
+    "keywords": "math,robot",
+    "authors": [{
+        "name": "Sensorimotor Team",
+        "url": "https://sensorimotor.de",
+        "maintainer": true
+    }],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Sensorimotor/arduino.git"
+    },
+    "version": "0.1.0",
+    "license": "MIT",
+    "homepage": "https://sensorimotor.de",
+    "frameworks": "arduino",
+    "platforms": "atmelavr, atmelsam, freescalekinetis, nordicnrf51, nxplpc, ststm32, teensy, espressif8266, espressif32",
+    "export": {
+        "exclude": [
+            "docs",
+            "extras"
+        ]
+    },
+    "build": {
+        "srcFilter": [
+            "+<*.c>",
+            "+<*.cpp>",
+            "+<*.h>",
+            "+<*.hpp>"
+        ],
+        "libArchive": false
+    }
+}
