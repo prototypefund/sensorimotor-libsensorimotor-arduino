@@ -2,7 +2,11 @@
 
 Sensorimotor-arduino is the arduino-library to control the sensorimotor boards.
 
-## Initialization:
+## Documentation
+
+For the full documentation, see the [documentation folder](docs/README.md) and the [example projects](examples/README.md).
+
+## Quick start:
 
 You can initialize a new Motorcord class like this:
 
