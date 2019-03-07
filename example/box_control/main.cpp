@@ -38,11 +38,13 @@ void read_potis() {
 
 void draw_lcd() {
   lcd.setCursor(0, 0);
+  // empty screen
   lcd.print("  M1  M2  M3  M4    ");
   lcd.print("%  0   0   0   0    ");
   lcd.print("P 0.0 0.0 0.0 0.0   ");
-  lcd.print("                    ");
+  lcd.print("   0   0   0   0    ");
 
+  // add setpoints
   lcd.setCursor(2, 3);
   lcd.print(to_percent(values[0]), 0);
   lcd.setCursor(6, 3);
@@ -51,6 +53,8 @@ void draw_lcd() {
   lcd.print(to_percent(values[2]), 0);
   lcd.setCursor(14, 3);
   lcd.print(to_percent(values[3]), 0);
+
+  // add motor data
 }
 
 void loop() {

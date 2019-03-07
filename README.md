@@ -1,4 +1,8 @@
-Initialization:
+# Sensorimotor-arduino
+
+Sensorimotor-arduino is the arduino-library to control the sensorimotor boards.
+
+## Initialization:
 
 You can initialize a new Motorcord class like this:
 
