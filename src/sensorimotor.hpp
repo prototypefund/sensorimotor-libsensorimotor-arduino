@@ -1,4 +1,4 @@
-#include "pid2.hpp"
+#include "pid.hpp"
 
 #ifndef __SENSORIMOTOR_H
 #define __SENSORIMOTOR_H
