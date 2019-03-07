@@ -5,14 +5,15 @@
    WIP
 */
 class buf {
-  public:
+public:
     uint8_t buf[20];
     uint8_t len = 0;
     // number of read bytes
     uint8_t read_bytes = 0;
-    void append(uint8_t byte) {
-      buf[len] = byte;
-      len++;
+    void append(uint8_t byte)
+    {
+        buf[len] = byte;
+        len++;
     }
 };
 
