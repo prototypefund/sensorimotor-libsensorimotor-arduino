@@ -4,7 +4,7 @@ Sensorimotor-arduino is the arduino-library to control the sensorimotor boards.
 
 ## Documentation
 
-For the full documentation, see the [documentation folder](docs/README.md) and the [example projects](example/README.md).
+For the full documentation, see the [documentation folder](doc/README.md) and the [example projects](example/README.md).
 
 ## Quick start:
 
