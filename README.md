@@ -1,6 +1,6 @@
 # Sensorimotor-arduino
 
-![Arduino Nano](doc/images/nano.jpg)
+![Breadboard example](doc/images/breadboard_minimal.png)
 
 Sensorimotor-arduino is the arduino-library to control the sensorimotor boards from an embedded platform, like arduino uno, arduino nano or compatible boards such as STM32 or ESP32.
 
