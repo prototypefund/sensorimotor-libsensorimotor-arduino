@@ -8,6 +8,7 @@
 
 Motorcord	KEYWORD1
 Board	KEYWORD1
+Communication   KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -22,3 +23,10 @@ stop    KEYWORD2
 set_voltage_limit   KEYWORD2
 set_pid_params  KEYWORD2
 set_position    KEYWORD2
+toggle_led  KEYWORD2
+
+# Communication methods
+send
+recv
+peek
+pop

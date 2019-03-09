@@ -1,11 +1,19 @@
+#include <stdint.h>
+
 #ifndef __COMMUNICATION_H
 #define __COMMUNICATION_H
+
+const uint8_t MAX_MSG_LEN = 20;
 
 class communication {
 private:
     uint8_t dere_pin; // data enable/read enable pin number
-    uint8_t buf[20];
-    uint8_t buf_len; // number of utilized bytes
+
+    // the receive buffer
+    uint8_t buf[MAX_MSG_LEN];
+    uint8_t _buf_len; // number of utilized bytes
+    // _read_bytes keeps track of bytes read from the receive buffer
+    uint8_t _read_bytes = 0;
 
     enum command_t : uint8_t {
         unknown = 0x00,
@@ -24,10 +32,10 @@ private:
     command_t comtype = unknown;
 
     /*
-      _peek returns the next byte on the serial buffer without removing it.
-      subsequent calls of peek() will return the same byte over and over.
-      If no byte is available, the return value will be -1.
-    */
+     * _peek returns the next byte on the serial buffer without removing it.
+     * subsequent calls of peek() will return the same byte over and over.
+     * If no byte is available, the return value will be -1.
+     */
     int _peek()
     {
         return Serial.peek();
@@ -55,10 +63,10 @@ private:
             // once we have two sync bytes, we are successful
             if (sync == 2) {
                 // add sync bytes to buffer
-                buf[buf_len] = 0xFF;
-                buf_len++;
-                buf[buf_len] = 0xFF;
-                buf_len++;
+                buf[_buf_len] = 0xFF;
+                _buf_len++;
+                buf[_buf_len] = 0xFF;
+                _buf_len++;
                 return true;
             }
             switch (this->_pop()) {
@@ -88,14 +96,14 @@ private:
         }
 
         // add byte to buffer
-        buf[buf_len] = (uint8_t)received;
-        buf_len++;
+        buf[_buf_len] = (uint8_t)received;
+        _buf_len++;
         return true;
     }
 
     command_t _get_message_type()
     {
-        if (buf_len < 3)
+        if (_buf_len < 3)
             return (command_t)0x00;
 
         return (command_t)buf[2];
@@ -129,10 +137,10 @@ private:
                 // no new byte
                 return false;
 
-            buf[buf_len] = (uint8_t)received;
-            buf_len++;
+            buf[_buf_len] = (uint8_t)received;
+            _buf_len++;
 
-            if (buf_len == msg_len)
+            if (_buf_len == msg_len)
                 // we reached required amount of bytes
                 return true;
         }
@@ -169,8 +177,8 @@ public:
     void reset()
     {
         syncstate = syncing;
-        buf_len = 0;
-        read_bytes = 0;
+        _buf_len = 0;
+        _read_bytes = 0;
         comtype = unknown;
     };
 
@@ -194,21 +202,37 @@ public:
     }
 
     /*
-       send sends a buffer up to a specified length over the RS485 bus.
-       It also takes care of setting the 'Data Enable' and 'Read Enable'
-       pin for e.g. a MAX485 board.
-    */
+     * send sends a buffer up to a specified length over the RS485 bus,
+     * automatically prepending the sync bytes and appending the checksum.
+     * It also takes care of setting the 'Data Enable' and 'Read Enable'
+     * pin for a transceiver board board.
+     */
     uint8_t send(uint8_t* buf, uint8_t len)
     {
+        // sync bytes
+        uint8_t sendbuf[MAX_MSG_LEN] = { 0xFF, 0xFF };
+        uint8_t sendbuf_len = 2;
+
+        // append buf
+        memcpy(sendbuf + sendbuf_len, buf, len);
+        sendbuf_len += len;
+
+        // append checksum
+        sendbuf[sendbuf_len] = checksum(sendbuf, sendbuf_len);
+        sendbuf_len++;
+
         digitalWrite(dere_pin, HIGH);
-        Serial.write(buf, len);
+        Serial.write(sendbuf, len);
         Serial.flush(); // wait for transmission to complete
         digitalWrite(dere_pin, LOW);
 
         return len;
     };
 
-    /* recv receives new data from the RS485 bus */
+    /*
+     * recv receives new data from the RS485 bus into the buffer. It will
+     * append new data on subsequent calls and update the sync state.
+     */
     void recv()
     {
         switch (syncstate) {
@@ -226,7 +250,7 @@ public:
                 syncstate = verifying;
         case verifying:
             // checksum of message without checksum byte equals checksum byte?
-            if (checksum(buf, buf_len - 1) == buf[buf_len - 1]) {
+            if (checksum(buf, _buf_len - 1) == buf[_buf_len - 1]) {
                 syncstate = finished;
             } else {
                 syncstate = error;
@@ -236,8 +260,8 @@ public:
     };
 
     /*
-       checksum calculates a checksum of the specified buffer, up to a length of 'len'
-    */
+     * checksum calculates a checksum of the specified buffer, up to a length of 'len'
+     */
     uint8_t checksum(uint8_t* buf, uint8_t len)
     {
         uint8_t i = 0;
