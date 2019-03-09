@@ -74,7 +74,7 @@ public:
 
         com.recv();
 
-        if (com.syncstate == communication::command_state_t::finished) {
+        if (com.syncstate == command_state_t::finished) {
         }
     }
 };
