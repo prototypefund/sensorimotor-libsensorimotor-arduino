@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map For SensoriMotor
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Motorcord	KEYWORD1
+Board	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+# Motorcord methods
+scan	KEYWORD2
+start   KEYWORD2
+stop    KEYWORD2
+
+# Board methods
+set_voltage_limit   KEYWORD2
+set_pid_params  KEYWORD2
+set_position    KEYWORD2
