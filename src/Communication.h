@@ -7,6 +7,10 @@ const uint8_t MAX_MSG_LEN = 20;
 
 class communication {
 private:
+    /*
+     * `dere_pin` is the number of the pin connected to the
+     * Data Enable/Read Enable pin of the RS485 transceiver module
+     */
     uint8_t dere_pin; // data enable/read enable pin number
 
     // the receive buffer
@@ -16,23 +20,28 @@ private:
     uint8_t _read_bytes = 0;
 
     enum command_t : uint8_t {
-        unknown = 0x00,
+        cmd_unknown = 0x00,
         // requests
-        setPWMLimitRequest = 0xA0,
-        dataRequest = 0xC0,
-        toggleLEDRequest = 0xD0,
-        ping = 0xE0,
-        setPosVoltageRequest = 0xB0,
-        setNegVoltageRequest = 0xB1,
+        cmd_setPWMLimitRequest = 0xA0,
+        cmd_dataRequest = 0xC0,
+        cmd_toggleLEDRequest = 0xD0,
+        cmd_ping = 0xE0,
+        cmd_setPosVoltageRequest = 0xB0,
+        cmd_setNegVoltageRequest = 0xB1,
         // responses
-        dataResponse = 0x80,
-        pong = 0xE1,
+        cmd_dataResponse = 0x80,
+        cmd_pong = 0xE1,
     };
 
-    command_t comtype = unknown;
+    /*
+     * `comtype` is the detected command type of the current frame.
+     * do not read this value directly, use `_get_message_type`
+     * instead.
+     */
+    command_t comtype = cmd_unknown;
 
     /*
-     * _peek returns the next byte on the serial buffer without removing it.
+     * `_peek` returns the next byte on the serial buffer without removing it.
      * subsequent calls of peek() will return the same byte over and over.
      * If no byte is available, the return value will be -1.
      */
@@ -42,20 +51,20 @@ private:
     }
 
     /*
-       _pop returns the next byte on the serial buffer, removing it afterwards.
-       If no byte is available, the return value will be -1.
-    */
+     * `_pop` returns the next byte on the serial buffer, removing it afterwards.
+     * If no byte is available, the return value will be -1.
+     */
     int _pop()
     {
         return Serial.read();
     }
 
     /*
-       _get_sync_bytes eats bytes until two successive sync bytes are encountered,
-       after which it will stop eating and returns `true`.
-       if the serial buffer does not contain two successive sync bytes, `false` will
-       be returned.
-    */
+     * `_get_sync_bytes` eats bytes until two successive sync bytes are encountered,
+     * after which it will stop eating and returns `true`.
+     * if the serial buffer does not contain two successive sync bytes, `false` will
+     * be returned.
+     */
     bool _get_sync_bytes()
     {
         uint8_t sync = 0;
@@ -85,9 +94,9 @@ private:
     }
 
     /*
-       _get_byte() works like _pop(), but adds the read byte automatically
-       to the received buffer.
-    */
+     * `_get_byte()` works like `_pop()`, but adds the read byte automatically
+     * to the received buffer.
+     */
     bool _get_byte()
     {
         int received = _pop();
@@ -101,6 +110,11 @@ private:
         return true;
     }
 
+    /*
+     * `_get_message_type` returns the command ID of the currently
+     * processed frame, or 0x00 if the command ID could not be
+     * determined (i.e not enough bytes are received yet).
+     */
     command_t _get_message_type()
     {
         if (_buf_len < 3)
@@ -110,21 +124,25 @@ private:
     }
 
     /*
-       _get_message_length returns the expected message length for a specific message type in bytes,
-       including the sync bytes and chcecksum.
-    */
+     * `_get_message_length` returns the expected message length for a specific message type in bytes,
+     * including the sync bytes and chcecksum.
+     */
     int8_t _get_msg_length(uint8_t msg_id)
     {
         switch (msg_id) {
-        case dataResponse:
+        case cmd_dataResponse:
             return 15;
-        case pong:
+        case cmd_pong:
             return 5;
         default:
             return -1; // error
         }
     }
 
+    /*
+     * `_read_until_len` reads more bytes from the serial input, until
+     * the desired message length is reached.
+     */
     bool _read_until_len(int8_t msg_len)
     {
         if (msg_len < 0)
@@ -159,14 +177,22 @@ public:
         error = 8,
     };
 
+    /*
+     * `syncstate` is the current state of the RX communication for this
+     * timeslot. if the syncstate is
+     * `Communication::command_state_t::finished`, the frame in the buffer
+     * is correctly received, validated, and can be parsed.
+     */
     command_state_t syncstate = syncing;
 
+    // default constructor
     communication()
-        : dere_pin(13)
+        : dere_pin(10)
     {
         pinMode(dere_pin, OUTPUT);
     };
 
+    // constructor, overloaded to specify a non-default DE/RE pin
     communication(uint8_t dere_pin)
         : dere_pin(dere_pin)
     {
@@ -174,12 +200,17 @@ public:
     };
     ~communication(){};
 
+    /*
+     * `reset` will delete the already read frame data and reset
+     * the communication state, for example when a timeslot has
+     * ended
+     */
     void reset()
     {
         syncstate = syncing;
         _buf_len = 0;
         _read_bytes = 0;
-        comtype = unknown;
+        comtype = cmd_unknown;
     };
 
     /*
@@ -274,37 +305,28 @@ public:
 
     void sendPing(uint8_t id)
     {
-        uint8_t packet[5];
-        packet[0] = 0xFF;
-        packet[1] = 0xFF;
-        packet[2] = 0xE0;
-        packet[3] = id;
-        packet[4] = checksum(packet, 4);
-        this->send(packet, 5);
+        uint8_t packet[2] = { cmd_ping, id };
+        this->send(packet, 2);
     }
 
     void sendPWMLimitRequest(uint8_t id, uint8_t maxduty)
     {
-        uint8_t packet[5];
-        packet[0] = 0xFF;
-        packet[1] = 0xFF;
-        packet[2] = 0xA0;
-        packet[3] = id;
-        packet[4] = maxduty;
-        packet[5] = checksum(packet, 5);
-        this->send(packet, 6);
+        uint8_t packet[3] = {
+            cmd_setPWMLimitRequest,
+            id,
+            maxduty
+        };
+        this->send(packet, 3);
         return;
     }
 
     void sendStatusRequest(uint8_t id)
     {
-        uint8_t packet[5];
-        packet[0] = 0xFF;
-        packet[1] = 0xFF;
-        packet[2] = 0xC0;
-        packet[3] = id;
-        packet[4] = checksum(packet, 4);
-        this->send(packet, 5);
+        uint8_t packet[2] = {
+            cmd_dataRequest,
+            id
+        };
+        this->send(packet, 2);
         return;
     }
 
@@ -320,27 +342,23 @@ public:
 
     void sendSetVoltagePosRequest(uint8_t id, uint8_t pwm)
     {
-        uint8_t packet[6];
-        packet[0] = 0xFF;
-        packet[1] = 0xFF;
-        packet[2] = 0xB0;
-        packet[3] = id;
-        packet[4] = pwm;
-        packet[5] = checksum(packet, 5);
-        this->send(packet, 6);
+        uint8_t packet[3] = {
+            packet[0] = cmd_setPosVoltageRequest,
+            packet[1] = id,
+            packet[2] = pwm
+        };
+        this->send(packet, 3);
         return;
     }
 
     void sendSetVoltageNegRequest(uint8_t id, uint8_t pwm)
     {
-        uint8_t packet[6];
-        packet[0] = 0xFF;
-        packet[1] = 0xFF;
-        packet[2] = 0xB1;
-        packet[3] = id;
-        packet[4] = pwm;
-        packet[5] = checksum(packet, 5);
-        this->send(packet, 6);
+        uint8_t packet[3] = {
+            cmd_setNegVoltageRequest,
+            id,
+            pwm
+        };
+        this->send(packet, 3);
         return;
     }
 };
