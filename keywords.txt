@@ -18,6 +18,7 @@ Communication   KEYWORD1
 scan	KEYWORD2
 start   KEYWORD2
 stop    KEYWORD2
+apply   KEYWORD2
 
 # Board methods
 set_voltage_limit   KEYWORD2

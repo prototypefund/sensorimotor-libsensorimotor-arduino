@@ -303,13 +303,13 @@ public:
         return (~sum + 1);
     };
 
-    void sendPing(uint8_t id)
+    void send_ping(uint8_t id)
     {
         uint8_t packet[2] = { CMD_REQUEST_PING, id };
         this->send(packet, 2);
     }
 
-    void sendPWMLimitRequest(uint8_t id, uint8_t maxduty)
+    void send_pwm_limit_request(uint8_t id, uint8_t maxduty)
     {
         uint8_t packet[3] = {
             CMD_REQUEST_PWM_LIMIT,
@@ -320,7 +320,7 @@ public:
         return;
     }
 
-    void sendStatusRequest(uint8_t id)
+    void send_data_request(uint8_t id)
     {
         uint8_t packet[2] = {
             CMD_REQUEST_DATA,
@@ -330,17 +330,21 @@ public:
         return;
     }
 
-    void sendSetVoltageRequest(uint8_t id, int16_t pwm)
+    void send_set_voltage_request(uint8_t id, int16_t pwm)
     {
         if (pwm < 0) {
             pwm *= -1;
-            sendSetVoltageNegRequest(id, (uint8_t)pwm);
+            if (pwm > 255)
+                pwm = 255;
+            send_set_voltage_neg_request(id, (uint8_t)pwm);
         } else {
-            sendSetVoltagePosRequest(id, (uint8_t)pwm);
+            if (pwm > 255)
+                pwm = 255;
+            send_set_voltage_pos_request(id, (uint8_t)pwm);
         }
     }
 
-    void sendSetVoltagePosRequest(uint8_t id, uint8_t pwm)
+    void send_set_voltage_pos_request(uint8_t id, uint8_t pwm)
     {
         uint8_t packet[3] = {
             packet[0] = CMD_REQUEST_POS_PWM,
@@ -351,7 +355,7 @@ public:
         return;
     }
 
-    void sendSetVoltageNegRequest(uint8_t id, uint8_t pwm)
+    void send_set_voltage_neg_request(uint8_t id, uint8_t pwm)
     {
         uint8_t packet[3] = {
             CMD_REQUEST_NEG_PWM,
