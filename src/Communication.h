@@ -31,7 +31,7 @@ enum command_state_t : uint8_t {
     error = 8,
 };
 
-class communication {
+class Communication {
 private:
     /*
      * `dere_pin` is the number of the pin connected to the
@@ -133,7 +133,7 @@ private:
             return (command_t)0x00;
 
         return (command_t)buf[2];
-    }
+    };
 
     /*
      * `_get_message_length` returns the expected message length for a specific message type in bytes,
@@ -186,19 +186,19 @@ public:
     command_state_t syncstate = syncing;
 
     // default constructor
-    communication()
+    Communication()
         : dere_pin(10)
     {
         pinMode(dere_pin, OUTPUT);
     };
 
     // constructor, overloaded to specify a non-default DE/RE pin
-    communication(uint8_t dere_pin)
+    Communication(uint8_t dere_pin)
         : dere_pin(dere_pin)
     {
         pinMode(dere_pin, OUTPUT);
     };
-    ~communication(){};
+    ~Communication(){};
 
     /*
      * `reset` will delete the already read frame data and reset
@@ -230,6 +230,16 @@ public:
     int pop()
     {
         return Serial.read();
+    }
+
+    /*
+     * `get_message_type` returns the command ID of the currently
+     * processed frame, or 0x00 if the command ID could not be
+     * determined (i.e not enough bytes are received yet).
+     */
+    command_t get_message_type()
+    {
+        return get_message_type();
     }
 
     /*

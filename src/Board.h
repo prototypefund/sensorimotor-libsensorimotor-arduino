@@ -1,46 +1,37 @@
+#include "Data.h"
 #include <stdint.h>
 
 #ifndef __BOARD_H
 #define __BOARD_H
 
-inline float uint16_to_sc(uint16_t val)
-{
-    return (val - 32768) / 32768.f;
-}
-inline float int16_to_sc(uint16_t val)
-{
-    return (int16_t)val / 32768.f;
-}
+// TODO: where to put this?
+const int motors_update_rate_hz = 100;
 
 class Board {
 
-    constexpr static const float voltage_scale = 0.012713472f; /* Vmax = 13V -> 1023 */
-    constexpr static const float current_scale = 0.003225806f; /* Imax = 3A3 -> 1023 */
-
     // id of the board, 0-127
     uint8_t _id;
-    // raw position of the board, 0-1023
-    uint16_t _raw_pos;
-    // raw current registered by the board, 0-1023 -> 0A-3A3
-    uint16_t _raw_current;
-    // raw velocity
-    uint16_t _raw_velocity;
-    // raw voltage registered by the board, 0-1023 -> 0V-13V
-    uint16_t _raw_voltage;
-    // raw temperature seen by the board, will be 0xFFFF if no thermistor is connected
-    uint16_t _raw_temp;
-    unsigned long _last_milis;
+
+    // embedded data about position, voltage, current etc.
+    Data data;
 
     // PID specific
+    PID pid_control;
     bool use_pid;
     float last_error;
 
 public:
     Board(uint8_t id)
-        : _id(id){};
-    Board()
-        : _id(0xFF){}; // 0xFF = empty id
+        : _id(id)
+        , pid_control(id, 1.f / motors_update_rate_hz){};
+    Board(void)
+        : _id(0xFF) // 0xFF = empty id
+        , pid_control(0xFF, 10.0f){};
     ~Board(){};
+
+    void set_data(Data d) { data = d; };
+
+    Data get_data(Data d) { return data; };
 
     uint8_t ID()
     {

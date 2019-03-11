@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #ifndef __PID_H
 #define __PID_H
 
@@ -100,25 +102,30 @@ float chop(float value, float threshold, float deadband)
     }
 }
 
-class pid_control {
+class PID {
 
     uint8_t id;
-    const float dt;
+    /* `dt` is the timestep between two measurements (delta t) */
+    float dt;
 
+    /* error integral */
     float err_int = 0.f;
+    /* last known error */
     float err_lst = 0.f;
+    /* desired setpoint */
     float target_value = 0.f;
 
     float Kp = 0.f;
     float Ki = 0.f;
     float Kd = 0.f;
 
+    /* maximum applied output value */
     float limit = 1.f;
     float pulse_mode_threshold = 0.f;
     float dead_band = 0.f;
 
 public:
-    pid_control(uint8_t id, float timestep)
+    PID(uint8_t id, float timestep)
         : id(id)
         , dt(timestep)
     {

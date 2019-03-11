@@ -1,3 +1,4 @@
+#include "Data.h"
 #include <stdint.h>
 
 #ifndef __MOTORCORD_H
@@ -46,7 +47,24 @@ void init_timers(void)
 class Motorcord {
 private:
     uint8_t last_timeslot;
-    communication com;
+    Communication com;
+
+    void _parse_status()
+    {
+        // abort if message is not ready yet
+        if (com.syncstate != command_state_t::finished) {
+            return;
+        };
+
+        // abort if message is not a data response
+        if (com.get_message_type() != command_t::CMD_RESPONSE_DATA) {
+            return;
+        }
+
+        // TODO: parse data message better
+
+        return;
+    };
 
 public:
     Motorcord(){};
@@ -61,15 +79,25 @@ public:
         boards[1] = Board(1);
         boards[2] = Board(2);
         boards[3] = Board(3);
-    }
+    };
 
     void apply()
     {
+        Data data;
+
+        // read everything we have received so far
+        com.recv();
+
         // keep track of timeslot as every millisecond we will increment the timeslot
         if (current_timeslot != last_timeslot) {
-            // reset communication_state
+            // read everything we have received so far
+            _parse_status();
+
+            // we are dealing with board [current_timeslot] now.
+
+            // reset communication_state, it's the beginning of a new era
             com.reset();
-            current_timeslot = current_timeslot;
+            last_timeslot = current_timeslot;
         }
 
         com.recv();
