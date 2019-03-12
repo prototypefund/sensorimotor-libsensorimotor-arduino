@@ -17,6 +17,7 @@ class Board {
 
     // PID specific
     PID pid_control;
+
     bool use_pid;
     float last_error;
 

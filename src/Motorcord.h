@@ -4,6 +4,8 @@
 #ifndef __MOTORCORD_H
 #define __MOTORCORD_H
 
+const uint8_t MAX_BOARDS = 10;
+
 /*
  * current_timeslot  keeps track of the current timeslot; This global
  * variable will increment once every millisecond, which will
@@ -31,7 +33,7 @@ void init_timers(void)
     TCNT1 = 0; // intial timer value
     OCR1A = 250; // compare register
 
-    // set prescaler to 64 (011)
+    // set prescaler to 64 (b011)
     TCCR1B &= ~(1 << CS12);
     TCCR1B |= (1 << CS11);
     TCCR1B |= (1 << CS10);
@@ -46,11 +48,12 @@ void init_timers(void)
 
 class Motorcord {
 private:
-    uint8_t last_timeslot;
+    uint8_t last_timeslot = 0;
     Communication com;
 
     void _parse_status()
     {
+
         // abort if message is not ready yet
         if (com.syncstate != command_state_t::finished) {
             return;
@@ -61,6 +64,28 @@ private:
             return;
         }
 
+        // discard sync bytes
+        com.pop_word();
+
+        uint8_t board_id = com.pop();
+        if (board_id > MAX_BOARDS)
+            // would write outside of array bounds,
+            // we cannot handle more than MAX_BOARDS
+            // yet.
+            return;
+
+        // TODO: this is communication related, move to Communication
+        // the order of this commands is important, based on protocol!
+        Data data;
+        data.raw_pos = com.pop_word();
+        data.raw_current = com.pop_word();
+        data.raw_velocity = com.pop_word();
+        data.raw_voltage = com.pop_word();
+        data.raw_temp = com.pop_word();
+
+        // assign data to board
+        boards[board_id].set_data(data);
+
         // TODO: parse data message better
 
         return;
@@ -70,10 +95,12 @@ public:
     Motorcord(){};
     ~Motorcord(){};
     // boards contains information of up to 10 connected boards
-    Board boards[10];
+    Board boards[MAX_BOARDS];
 
     void init()
     {
+        init_timers();
+
         // TODO: FIXME: prime motors w/o discovery for now
         boards[0] = Board(0);
         boards[1] = Board(1);
@@ -83,8 +110,6 @@ public:
 
     void apply()
     {
-        Data data;
-
         // read everything we have received so far
         com.recv();
 

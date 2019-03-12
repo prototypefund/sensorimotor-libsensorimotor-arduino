@@ -31,6 +31,11 @@ enum command_state_t : uint8_t {
     error = 8,
 };
 
+inline int concat_word(int high_byte, int low_byte)
+{
+    return ((high_byte << 8) | (low_byte & 0x00FF));
+}
+
 class Communication {
 private:
     /*
@@ -229,7 +234,24 @@ public:
     */
     int pop()
     {
-        return Serial.read();
+        // is there a byte left to read?
+        if ((_read_bytes + 1) > _buf_len)
+            return -1;
+
+        _read_bytes++;
+        return buf[_read_bytes];
+    }
+
+    /* `read_word` returns a max 15 bit value from the receive buffer, or a
+     * negative value of -1 if no word is available for reading.
+     */
+    int pop_word()
+    {
+        // is there even a whole word left to read?
+        if ((_read_bytes + 2) > _buf_len)
+            return -1;
+
+        return concat_word(pop(), pop());
     }
 
     /*
@@ -250,7 +272,7 @@ public:
      */
     uint8_t send(uint8_t* buf, uint8_t len)
     {
-        // sync bytes
+        // begin message, including sync bytes
         uint8_t sendbuf[MAX_MSG_LEN] = { 0xFF, 0xFF };
         uint8_t sendbuf_len = 2;
 
@@ -263,8 +285,17 @@ public:
         sendbuf_len++;
 
         digitalWrite(dere_pin, HIGH);
+
+#ifdef DEBUG
+        for (uint8_t i = 0; i < sendbuf_len; i++) {
+            Serial.print(sendbuf[i], 16);
+            Serial.print(" ");
+        }
+        Serial.print("\n");
+#else
         Serial.write(sendbuf, len);
         Serial.flush(); // wait for transmission to complete
+#endif
         digitalWrite(dere_pin, LOW);
 
         return len;
@@ -307,7 +338,7 @@ public:
     {
         uint8_t i = 0;
         uint8_t sum = 0x00;
-        for (i = 0; i > len; i++) {
+        for (i = 0; i < len; i++) {
             sum += buf[i];
         }
         return (~sum + 1);
