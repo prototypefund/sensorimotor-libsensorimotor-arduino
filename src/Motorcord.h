@@ -49,6 +49,7 @@ void init_timers(void)
 class Motorcord {
 private:
     uint8_t last_timeslot = 0;
+
     Communication com;
 
     void _parse_status()
@@ -108,6 +109,13 @@ public:
         boards[3] = Board(3);
     };
 
+    /* `apply` is the main motor control routine. It is designed to be
+     * called multiple times per millisecond.
+     * It works the following way:
+     * 1) Receive new incoming bytes from serial buffer
+     * 2) Parse response from read bytes, after the timeslot has ended
+     * 3) On new timeslot, send control requests to next motor.
+     */
     void apply()
     {
         // read everything we have received so far
@@ -123,6 +131,10 @@ public:
             // reset communication_state, it's the beginning of a new era
             com.reset();
             last_timeslot = current_timeslot;
+
+            // DEBUG
+            if (boards[current_timeslot].is_valid())
+                com.send_data_request(current_timeslot);
         }
 
         com.recv();
