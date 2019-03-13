@@ -15,7 +15,7 @@ inline float int16_to_sc(uint16_t val)
 inline float pos_int_to_float(int val)
 {
     // as the area 0-1023 is mapped to [-1,+1]:
-    const inline float scalar = (1.f / 512);
+    const float scalar = (1.f / 512);
 
     return val * scalar - 1.f;
 }

@@ -57,7 +57,7 @@ public:
     /* get_position is a shorthand for get_data().raw_pos */
     int get_position()
     {
-        return data.raw_pos;
+        return data.get_position();
     };
 
     /* get_current is a shorthand for get_data().get_current() */

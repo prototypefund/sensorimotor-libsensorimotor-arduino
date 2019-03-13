@@ -132,14 +132,13 @@ public:
             com.reset();
             last_timeslot = current_timeslot;
 
-            // DEBUG
-            if (boards[current_timeslot].is_valid())
-                com.send_data_request(current_timeslot);
-        }
-
-        com.recv();
-
-        if (com.syncstate == command_state_t::finished) {
+            // Set voltage according to controller, this will also prompt a
+            // data response which can be evaluated in the next timestep.
+            Board board = boards[current_timeslot];
+            if (board.is_valid()) {
+                int calculated_voltage = board.calculate_voltage();
+                com.send_set_voltage_request(current_timeslot, calculated_voltage);
+            }
         }
     }
 };
