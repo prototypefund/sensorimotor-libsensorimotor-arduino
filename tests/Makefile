@@ -6,7 +6,7 @@ clean:
 	rm *.bin
 
 %.bin: %.cpp
-	g++ -o $@ $<
+	g++ -std=gnu++11 -o $@ $<
 	./$@
 
 .PHONY: success

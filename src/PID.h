@@ -1,8 +1,7 @@
-#include <stdint.h>
-
 #ifndef ARDUINO
-#include <stdlib.h>
-
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
 using std::abs;
 #endif
 

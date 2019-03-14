@@ -1,5 +1,6 @@
 #include "../src/utils.h"
-#include <iostream>
+#include <cstdlib>
+#include <stdio.h>
 
 int test_float_to_uint8()
 {
@@ -51,7 +52,5 @@ int main(void)
     if (test_float_to_int16() != 0)
         return 2;
 
-    std::cout
-        << "Tests successful! \n";
     return 0;
 }
