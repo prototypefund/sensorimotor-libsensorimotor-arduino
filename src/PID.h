@@ -1,5 +1,11 @@
 #include <stdint.h>
 
+#ifndef ARDUINO
+#include <stdlib.h>
+
+using std::abs;
+#endif
+
 #ifndef __PID_H
 #define __PID_H
 
