@@ -141,6 +141,29 @@ public:
             }
         }
     }
+
+    void stop()
+    {
+        // for each motor in cord
+        for (uint8_t i = 0; i < MAX_BOARDS; i++) {
+            boards[i].set_controller(CONTROLLER_DISABLED);
+        }
+        return;
+    };
+
+    void set_max_voltage(float pwm)
+    {
+        // for each motor in cord
+        for (uint8_t i = 0; i < MAX_BOARDS; i++) {
+            com.send_set_voltage_request(i, float_to_uint8(pwm));
+        }
+        return;
+    };
+
+    Board* get(int id)
+    {
+        return &boards[id];
+    };
 };
 
 #endif /* __MOTORCORD_H */
