@@ -1,0 +1,26 @@
+language: cpp
+
+sudo: required
+
+dist: trusty
+
+compiler:
+  - gcc
+
+os:
+  - linux
+
+before_install:
+  - echo $LC_ALL
+
+script:
+  - cd tests/ && make
+
+after_success:
+
+branches:
+  only:
+    - master
+    - "/^v\\d+\\./"
+notifications:
+email: false
