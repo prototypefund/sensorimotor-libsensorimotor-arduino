@@ -35,7 +35,7 @@ int test_pid()
         output = pid.step(t.input);
 
         if (output != t.expected) {
-            std::cout << "Error in test case " << i + 1 << std::endl;
+            printf("Error in test case %d\n", i + 1);
             printf("Value for %f was %f (expected %f)\n", t.input, output, t.expected);
             return i + 1;
         }

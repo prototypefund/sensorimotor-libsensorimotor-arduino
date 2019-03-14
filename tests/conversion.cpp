@@ -13,7 +13,7 @@ int test_float_to_uint8()
         output = float_to_uint8(input[i]);
 
         if (output != expected[i]) {
-            std::cout << "Error in test case " << i + 1 << std::endl;
+            printf("Error in test case %d\n", i + 1);
             printf("Value for %f was %d (expected %d)\n", input[i], output, expected[i]);
             return i + 1;
         }
@@ -34,7 +34,7 @@ int test_float_to_int16()
         output = float_to_int16(input[i]);
 
         if (output != expected[i]) {
-            std::cout << "Error in test case " << i + 1 << std::endl;
+            printf("Error in test case %d\n", i + 1);
             printf("Value for %f was %d (expected %d)\n", input[i], output, expected[i]);
             return i + 1;
         }
