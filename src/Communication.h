@@ -295,7 +295,8 @@ public:
         Serial.print("\n");
 #else
         Serial.write(sendbuf, len);
-        Serial.flush(); // wait for transmission to complete
+        delayMicroseconds(100); // flush hangs the program!! we use a hardcoded delay
+        //Serial.flush(); // wait for transmission to complete
 #endif
         digitalWrite(dere_pin, LOW);
 
