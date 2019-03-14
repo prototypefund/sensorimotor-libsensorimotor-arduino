@@ -378,11 +378,13 @@ public:
             if (pwm > 255)
                 pwm = 255;
             send_set_voltage_neg_request(id, (uint8_t)pwm);
-        } else {
-            if (pwm > 255)
-                pwm = 255;
-            send_set_voltage_pos_request(id, (uint8_t)pwm);
+            return;
         }
+
+        if (pwm > 255)
+            pwm = 255;
+        send_set_voltage_pos_request(id, (uint8_t)pwm);
+        return;
     }
 
     void send_set_voltage_pos_request(uint8_t id, uint8_t pwm)
