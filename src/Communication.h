@@ -194,6 +194,7 @@ public:
     Communication()
         : dere_pin(10)
     {
+        Serial.begin(1000000);
         pinMode(dere_pin, OUTPUT);
     };
 

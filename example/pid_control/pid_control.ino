@@ -4,6 +4,10 @@ Motorcord motors;
 
 void setup()
 {
+    // Motor init will initialize all required resources, including the
+    // Serial port. Since only the Hardware serial port is capable of
+    // sufficient speed, you will lose the ability to send debug messages
+    // to your computer.
     motors.init();
 
     // you have to set a voltage to activate the motors.
@@ -19,6 +23,9 @@ void setup()
 
 void loop()
 {
+    // apply is required to be called at least once every millisecond. It
+    // will apply voltage changes, and gather responses from the boards
+    // on the bus.
     motors.apply();
 
     // you can now see the currently reported position by calling
