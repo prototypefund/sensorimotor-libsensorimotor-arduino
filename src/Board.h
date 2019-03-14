@@ -71,24 +71,23 @@ public:
 
     /*
      * `calculate_voltage` returns the calculated voltage of the motor
-     * in the interval [-255,+255], according to the currently active
+     * in the interval [-1,+1], according to the currently active
      * controller of the board.
      */
-    uint16_t calculate_voltage()
+    float calculate_voltage()
     {
         switch (controller) {
         case CONTROLLER_DISABLED:
-            return 0;
+            return 0.0f;
             break;
 
         case CONTROLLER_PID:
-            float u = pid_control.step(get_position());
-            return float_to_int16(u);
+            return pid_control.step(get_position());
 
         default:
+            return 0.0f;
             break;
         }
-        return 0;
     };
 
     Data get_data() { return data; };

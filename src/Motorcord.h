@@ -134,9 +134,8 @@ public:
 
             // Set voltage according to controller, this will also prompt a
             // data response which can be evaluated in the next timestep.
-            Board board = boards[current_timeslot];
-            if (board.is_valid()) {
-                int calculated_voltage = board.calculate_voltage();
+            if (get(current_timeslot)->is_valid()) {
+                uint16_t calculated_voltage = get(current_timeslot)->calculate_voltage();
                 com.send_set_voltage_request(current_timeslot, calculated_voltage);
             }
         }

@@ -373,41 +373,41 @@ public:
         return;
     }
 
-    void send_set_voltage_request(uint8_t id, int16_t pwm)
+    void send_set_voltage_request(uint8_t id, float val)
     {
-        if (pwm < 0) {
-            pwm *= -1;
-            if (pwm > 255)
-                pwm = 255;
-            send_set_voltage_neg_request(id, (uint8_t)pwm);
+        uint8_t pwm;
+
+        if (val < 0) {
+            val *= -1;
+            pwm = float_to_uint8(val);
+            send_set_voltage_neg_request(id, pwm);
             return;
         }
 
-        if (pwm > 255)
-            pwm = 255;
-        send_set_voltage_pos_request(id, (uint8_t)pwm);
+        pwm = float_to_uint8(val);
+        send_set_voltage_pos_request(id, pwm);
         return;
     }
 
     void send_set_voltage_pos_request(uint8_t id, uint8_t pwm)
     {
-        uint8_t packet[3] = {
-            packet[0] = CMD_REQUEST_POS_PWM,
-            packet[1] = id,
-            packet[2] = pwm
+        uint8_t packet[] = {
+            CMD_REQUEST_POS_PWM,
+            id,
+            pwm
         };
-        this->send(packet, 3);
+        send(packet, 3);
         return;
     }
 
     void send_set_voltage_neg_request(uint8_t id, uint8_t pwm)
     {
-        uint8_t packet[3] = {
+        uint8_t packet[] = {
             CMD_REQUEST_NEG_PWM,
             id,
             pwm
         };
-        this->send(packet, 3);
+        send(packet, 3);
         return;
     }
 };
