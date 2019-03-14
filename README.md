@@ -1,4 +1,4 @@
-# Sensorimotor-arduino
+# Sensorimotor-arduino [![Build Status](https://travis-ci.org/sensorimotor/libsensorimotor-arduino.svg?branch=master)](https://travis-ci.org/sensorimotor/libsensorimotor-arduino)
 
 ![Breadboard example](doc/images/breadboard_minimal.png)
 
