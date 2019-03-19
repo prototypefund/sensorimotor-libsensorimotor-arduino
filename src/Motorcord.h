@@ -55,6 +55,8 @@ private:
     void _parse_status()
     {
 
+        boards[0].dbgSuccess = com.syncstate;
+
         // abort if message is not ready yet
         if (com.syncstate != command_state_t::finished) {
             return;
@@ -107,6 +109,12 @@ public:
         boards[1] = Board(1);
         boards[2] = Board(2);
         boards[3] = Board(3);
+        boards[4] = Board(4);
+        boards[5] = Board(5);
+        boards[6] = Board(6);
+        boards[7] = Board(7);
+        boards[8] = Board(8);
+        boards[9] = Board(9);
     };
 
     /* `apply` is the main motor control routine. It is designed to be
@@ -154,7 +162,8 @@ public:
     {
         // for each motor in cord
         for (uint8_t i = 0; i < MAX_BOARDS; i++) {
-            com.send_set_voltage_request(i, float_to_uint8(pwm));
+            com.send_pwm_limit_request(i, float_to_uint8(pwm));
+            delayMicroseconds(75);
         }
         return;
     };

@@ -95,13 +95,16 @@ private:
                 _buf_len++;
                 return true;
             }
+
+            // until then, we will read the next byte
             switch (this->_pop()) {
+            case 0xFF:
+                // FF increments the sync counter
+                sync++;
+                break;
             case -1:
                 // no bytes left and yet no sync
                 return false;
-            case 0xFF:
-                sync++;
-                break;
             default:
                 // any other byte will reset the counter
                 sync = 0;
@@ -182,6 +185,10 @@ private:
     }
 
 public:
+    // the receive buffer
+    uint8_t buf[MAX_MSG_LEN];
+    uint8_t _buf_len; // number of utilized bytes
+
     /*
      * `syncstate` is the current state of the RX communication for this
      * timeslot. if the syncstate is
@@ -192,7 +199,7 @@ public:
 
     // default constructor
     Communication()
-        : dere_pin(10)
+        : dere_pin(13)
     {
         Serial.begin(1000000);
         pinMode(dere_pin, OUTPUT);
@@ -262,7 +269,7 @@ public:
      */
     command_t get_message_type()
     {
-        return get_message_type();
+        return _get_message_type();
     }
 
     /*
@@ -294,13 +301,13 @@ public:
         }
         Serial.print("\n");
 #else
-        Serial.write(sendbuf, len);
-        delayMicroseconds(100); // flush hangs the program!! we use a hardcoded delay
-        //Serial.flush(); // wait for transmission to complete
+        Serial.write(sendbuf, sendbuf_len);
+        //delayMicroseconds(100); // flush hangs the program!! we use a hardcoded delay
+        Serial.flush(); // wait for transmission to complete
 #endif
         digitalWrite(dere_pin, LOW);
 
-        return len;
+        return sendbuf_len;
     };
 
     /*
@@ -309,29 +316,37 @@ public:
      */
     void recv()
     {
-        switch (syncstate) {
-        case syncing:
+        if (syncstate == syncing) {
             if (this->_get_sync_bytes())
                 syncstate = awaiting;
-        case awaiting:
+        }
+
+        if (syncstate == awaiting) {
             if (this->_get_byte())
                 syncstate = get_id;
-        case get_id:
+        }
+
+        if (syncstate == get_id) {
             if (this->_get_byte())
                 syncstate = reading;
-        case reading:
+        }
+
+        if (syncstate == reading) {
             if (this->_read_until_len(_get_msg_length(_get_message_type())))
                 syncstate = verifying;
-        case verifying:
+        }
+
+        if (syncstate == verifying) {
             // checksum of message without checksum byte equals checksum byte?
-            if (checksum(buf, _buf_len - 1) == buf[_buf_len - 1]) {
+            if (checksum(buf, _buf_len - 1) == buf[_buf_len]) {
                 syncstate = finished;
             } else {
-                syncstate = error;
+                //DEBUG
+                syncstate = finished;
             }
-            break;
         }
-    };
+        return;
+    }
 
     /*
      * checksum calculates a checksum of the specified buffer, up to a length of 'len'
@@ -349,6 +364,12 @@ public:
     void send_ping(uint8_t id)
     {
         uint8_t packet[2] = { CMD_REQUEST_PING, id };
+        this->send(packet, 2);
+    }
+
+    void send_led_toggle(uint8_t id)
+    {
+        uint8_t packet[2] = { CMD_REQUEST_LED_TOGGLE, id };
         this->send(packet, 2);
     }
 
@@ -376,6 +397,8 @@ public:
     void send_set_voltage_request(uint8_t id, float val)
     {
         uint8_t pwm;
+
+        val = clip(val);
 
         if (val < 0) {
             val *= -1;

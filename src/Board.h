@@ -1,4 +1,5 @@
 #include "Data.h"
+#include "PID.h"
 #include "utils.h"
 #include <stdint.h>
 
@@ -30,6 +31,12 @@ class Board {
     // PID specific
     PID pid_control;
 
+    // impulse specific
+    unsigned int duration = 0;
+
+    // other controllers
+    float target;
+
     float last_error;
 
 public:
@@ -40,6 +47,8 @@ public:
         : _id(0xFF) // 0xFF = empty id
         , pid_control(0xFF, 10.0f){};
     ~Board(){};
+
+    int dbgSuccess = 0;
 
     uint8_t ID()
     {
@@ -84,6 +93,22 @@ public:
         case CONTROLLER_PID:
             return pid_control.step(get_position());
 
+        case CONTROLLER_VOLTAGE:
+            return clip(target);
+
+        case CONTROLLER_CONSTP:
+            // P = I * U, and we can control U. add a small offset to prevent
+            // division by zero.
+            return clip(target / (data.get_current() + 0.001));
+
+        case CONTROLLER_IMPULSE:
+            // every time we return the voltage, we will decrement the duration
+            // by one.
+            if (duration-- > 0) {
+                return clip(target);
+            } else
+                return 0.0;
+
         default:
             return 0.0f;
             break;
@@ -106,6 +131,28 @@ public:
     {
         pid_control.set_target_value(position);
         set_controller(CONTROLLER_PID);
+    };
+
+    void set_voltage(float voltage)
+    {
+        target = 0.0;
+        set_controller(CONTROLLER_VOLTAGE);
+        target = voltage;
+    };
+
+    void set_impulse(float voltage, unsigned int iterations)
+    {
+        target = 0.0;
+        set_controller(CONTROLLER_IMPULSE);
+        target = voltage;
+        duration = iterations;
+    };
+
+    void set_power(float wattage)
+    {
+        target = 0.0;
+        set_controller(CONTROLLER_CONSTP);
+        target = wattage;
     };
 };
 
