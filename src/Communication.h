@@ -227,39 +227,61 @@ public:
     };
 
     /*
+     * `can_read_bytes` returns true if at least `n` bytes are left in
+     * the buffer to be read.
+     */
+    bool can_read_bytes(uint8_t n)
+    {
+        return ((_read_bytes + n) <= _buf_len);
+    }
+
+    /*
       peek returns the next byte on the buffer without removing it.
       subsequent calls of peek() will return the same byte over and over.
       If no byte is available, the return value will be -1.
     */
-    int peek()
+    int16_t peek()
     {
-        return Serial.peek();
+        if (!can_read_bytes(1))
+            return -1;
+
+        return buf[_read_bytes];
     }
 
     /*
        pop returns the next byte on the buffer, removing it afterwards.
        If no byte is available, the return value will be -1.
     */
-    int pop()
+    int8_t pop()
     {
-        // is there a byte left to read?
-        if ((_read_bytes + 1) > _buf_len)
-            return -1;
-
         _read_bytes++;
         return buf[_read_bytes];
     }
 
-    /* `read_word` returns a max 15 bit value from the receive buffer, or a
-     * negative value of -1 if no word is available for reading.
+    /*
+     * `can_pop` returns true if there is at least one byte left to read
+     * in the buffer.
      */
-    int pop_word()
+    bool can_pop()
     {
-        // is there even a whole word left to read?
-        if ((_read_bytes + 2) > _buf_len)
-            return -1;
+        return can_read_bytes(1);
+    }
 
+    /*
+     * `pop_word` returns a word from the receive buffer.
+     */
+    uint16_t pop_word()
+    {
         return concat_word(pop(), pop());
+    }
+
+    /*
+     * `can_pop_word` returns true if there is at least a whole word left
+     * to read in the buffer
+     */
+    bool can_pop_word()
+    {
+        return can_read_bytes(2);
     }
 
     /*

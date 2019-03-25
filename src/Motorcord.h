@@ -77,19 +77,22 @@ private:
             // yet.
             return;
 
-        // TODO: this is communication related, move to Communication
-        // the order of this commands is important, based on protocol!
-        Data data;
-        data.raw_pos = com.pop_word();
-        data.raw_current = com.pop_word();
-        data.raw_velocity = com.pop_word();
-        data.raw_voltage = com.pop_word();
-        data.raw_temp = com.pop_word();
+        // only set data if we have all values ready to read
+        if (com.can_read_bytes(2 * 5)) {
 
-        // assign data to board
-        boards[board_id].set_data(data);
+            // TODO: this is communication related, move to Communication
+            Data data;
 
-        // TODO: parse data message better
+            // the order of this commands is important, based on protocol!
+            data.raw_pos = com.pop_word();
+            data.raw_current = com.pop_word();
+            data.raw_velocity = com.pop_word();
+            data.raw_voltage = com.pop_word();
+            data.raw_temp = com.pop_word();
+
+            // assign data to board
+            boards[board_id].set_data(data);
+        }
 
         return;
     };
