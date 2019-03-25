@@ -44,9 +44,6 @@ private:
      */
     uint8_t dere_pin; // data enable/read enable pin number
 
-    // the receive buffer
-    uint8_t buf[MAX_MSG_LEN];
-    uint8_t _buf_len; // number of utilized bytes
     // _read_bytes keeps track of bytes read from the receive buffer
     uint8_t _read_bytes = 0;
 
@@ -209,6 +206,7 @@ public:
     Communication(uint8_t dere_pin)
         : dere_pin(dere_pin)
     {
+        Serial.begin(1000000);
         pinMode(dere_pin, OUTPUT);
     };
     ~Communication(){};
