@@ -12,23 +12,29 @@ For the full documentation, see the [documentation folder](doc/README.md) and th
 
 ### Installation
 
-Clone this repository as a new folder called "SensoriMotor" under the folder named "libraries" in your Arduino sketchbook folder. Create the folder "libraries" in case it does not exist yet.
+Clone this repository as a new folder called "Sensorimotor" under the folder named "libraries" in your Arduino sketchbook folder. Create the folder "libraries" in case it does not exist yet.
 
 ### Usage
 
 To use the library in your own sketch, select it from Sketch > Import Library.
 
-You can initialize a new Motorcord class like this:
+This will add all referenced Header files, but you may delete all `#include`s, except the line
 
 ```cpp
-#include <sensorimotor.h>
+#include <Sensorimotor.h>
+```
+
+You can now initialize a new Motorcord class like this:
+
+```cpp
+#include <ensorimotor.h>
 
 // instantiate the motor cord
 Motorcord motors;
 
 void setup() {
 	// find boards and configure them
-	motors.init();
+	motors.begin();
 }
 
 void loop() {
