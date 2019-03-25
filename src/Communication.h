@@ -31,9 +31,9 @@ enum command_state_t : uint8_t {
     error = 8,
 };
 
-inline int concat_word(int high_byte, int low_byte)
+inline uint16_t concat_word(int high_byte, int low_byte)
 {
-    return ((high_byte << 8) | (low_byte & 0x00FF));
+    return (((uint8_t)high_byte << 8) | ((uint8_t)low_byte & 0x00FF));
 }
 
 class Communication {

@@ -1,3 +1,4 @@
+#include "Assert.h"
 #include "Data.h"
 #include "PID.h"
 #include "utils.h"
@@ -61,16 +62,13 @@ public:
     };
 
     /* get_position is a shorthand for get_data().raw_pos */
-    float get_position()
-    {
-        return data.get_position();
-    };
+    float get_position() { return data.get_position(); };
 
     /* get_current is a shorthand for get_data().get_current() */
     float get_current() { return data.get_current(); };
 
     /* get_velocity is a shorthand for get_data().raw_velocity */
-    int get_velocity() { return data.raw_velocity; };
+    float get_velocity() { return data.get_velocity(); };
 
     /* get_voltage is a shorthand for get_data().get_voltage */
     float get_voltage() { return data.get_voltage(); };
@@ -97,9 +95,9 @@ public:
             return clip(target);
 
         case CONTROLLER_CONSTP:
-            // P = I * U, and we can control U. add a small offset to prevent
-            // division by zero.
-            return clip(target / (data.get_current() + 0.001));
+            // P = I * U, and we can control U.
+            // add a small offset to prevent division by zero.
+            return clip(target / ((data.get_current() * data.get_voltage()) + 0.001));
 
         case CONTROLLER_IMPULSE:
             // every time we return the voltage, we will decrement the duration
@@ -123,7 +121,11 @@ public:
 
     void set_pid_values(float p, float i, float d)
     {
+        // discard old state
+        pid_control.reset();
+
         pid_control.set_pid(p, i, d);
+
         set_controller(CONTROLLER_PID);
     };
 

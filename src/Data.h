@@ -7,6 +7,7 @@ inline float uint16_to_sc(uint16_t val)
 {
     return (val - 32768) / 32768.f;
 }
+
 inline float int16_to_sc(uint16_t val)
 {
     return (int16_t)val / 32768.f;
@@ -28,32 +29,43 @@ class Data {
 
 public:
     Data(){};
+    Data(uint16_t rpos, uint16_t rcur, uint16_t rvel, uint16_t rvolt, uint16_t rtemp)
+        : raw_pos(rpos)
+        , raw_current(rcur)
+        , raw_velocity(rvel)
+        , raw_voltage(rvolt)
+        , raw_temp(rtemp){};
     ~Data(){};
 
-    // raw position of the board, 0-1023
-    int raw_pos;
+    // raw position of the board, 0-65535 -> -1.0 – +1.0
+    uint16_t raw_pos;
 
     // raw current registered by the board, 0-1023 -> 0A-3A3
-    int raw_current;
+    uint16_t raw_current;
 
     // raw velocity
-    int raw_velocity;
+    uint16_t raw_velocity;
 
     // raw voltage registered by the board, 0-1023 -> 0V-13V
-    int raw_voltage;
+    uint16_t raw_voltage;
 
     // raw temperature seen by the board, will be 0xFFFF if no thermistor is connected
-    int raw_temp;
+    uint16_t raw_temp;
 
     float get_position()
     {
-        return pos_int_to_float(raw_pos);
+        return uint16_to_sc(raw_pos); // * direction + offset
     };
 
     float get_current()
     {
         return raw_current * current_scale;
     };
+
+    float get_velocity()
+    {
+        return int16_to_sc(raw_velocity); // * direction
+    }
 
     float get_voltage()
     {
