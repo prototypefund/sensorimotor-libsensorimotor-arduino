@@ -1,5 +1,9 @@
 .PHONY: test
-test: conversion.bin pid.bin msg_decode.bin clean success
+test: \
+	conversion.bin \
+	pid.bin \
+	msg_decode.bin \
+	clean success
 
 .PHONY: clean
 clean:
